@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>co.awm.watchdog</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/sam/.npm-global/bin/node</string>
+        <string>/Users/sam/.npm-global/lib/node_modules/agent-work-manager/dist/daemon.js</string>
+    </array>
+    
+    <key>StartInterval</key>
+    <integer>60</integer>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>AWM_DATA</key>
+        <string>/Users/sam/clawd/data/awm-data.json</string>
+        <key>AWM_GATEWAY_URL</key>
+        <string>http://localhost:18789</string>
+        <key>AWM_GATEWAY_TOKEN</key>
+        <string>75de3e0770ce81208b5c1f24b3dc1667e21379348f6d56f6</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/Users/sam/.npm-global/bin</string>
+    </dict>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/sam/clawd/logs/awm-watchdog.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/sam/clawd/logs/awm-watchdog.log</string>
+    
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
