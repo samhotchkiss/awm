@@ -431,4 +431,97 @@ export class AWM {
       return undefined;
     }
   }
+
+  // === PULL-BASED WORK ASSIGNMENT ===
+  
+  /**
+   * Get work for an agent (pull model).
+   * Returns prioritized tasks + idle work instructions.
+   * Designed for agent heartbeats to pull their work queue.
+   */
+  getAgentWork(agentId: string): {
+    hasWork: boolean;
+    tasks: Array<{ id: string; name: string; instruction: string; cadence?: string; overdueMins: number }>;
+    idleTask?: { name: string; instruction: string };
+    message: string;
+  } {
+    const agent = this.storage.getAgent(agentId);
+    const now = Date.now();
+
+    // Collect overdue recurring tasks, sorted by how overdue they are
+    const overdueTasks: Array<{ task: Task; overdueMins: number }> = [];
+    
+    if (agent?.recurringTaskIds) {
+      for (const taskId of agent.recurringTaskIds) {
+        const task = this.storage.getTask(taskId);
+        if (task && task.status === 'active' && task.cadence) {
+          const interval = this.parseDurationSafe(task.cadence) || 0;
+          const elapsed = now - task.lastUpdate;
+          if (elapsed > interval) {
+            overdueTasks.push({
+              task,
+              overdueMins: Math.floor(elapsed / 60000)
+            });
+          }
+        }
+      }
+    }
+
+    // Sort by most overdue first
+    overdueTasks.sort((a, b) => b.overdueMins - a.overdueMins);
+
+    // Format tasks for output
+    const tasks = overdueTasks.map(({ task, overdueMins }) => ({
+      id: task.id,
+      name: task.name,
+      instruction: task.instruction || task.name,
+      cadence: task.cadence,
+      overdueMins
+    }));
+
+    // Get idle task
+    const idleTask = agent?.defaultMode ? {
+      name: agent.defaultMode.taskName,
+      instruction: agent.defaultMode.instruction
+    } : undefined;
+
+    // Generate human-readable message
+    const lines: string[] = [];
+    
+    if (tasks.length > 0) {
+      lines.push(`📋 YOU HAVE ${tasks.length} TASK(S) TO DO:`);
+      lines.push('');
+      for (let i = 0; i < tasks.length; i++) {
+        const t = tasks[i];
+        lines.push(`${i + 1}. **${t.name}** (${t.overdueMins}m overdue)`);
+        lines.push(`   → ${t.instruction}`);
+        lines.push(`   When done: \`awm update ${t.id} -m "what you did"\``);
+        lines.push('');
+      }
+    }
+
+    if (idleTask) {
+      if (tasks.length > 0) {
+        lines.push('---');
+        lines.push('After completing tasks above, continue with:');
+      }
+      lines.push(`🏠 IDLE WORK: ${idleTask.name}`);
+      lines.push(`   → ${idleTask.instruction}`);
+      lines.push(`   Check in periodically: \`awm checkin ${agentId} -m "what you did"\``);
+    }
+
+    if (tasks.length === 0 && !idleTask) {
+      lines.push('✅ Nothing to do right now.');
+    }
+
+    // Record check-in
+    this.checkIn(agentId);
+
+    return {
+      hasWork: tasks.length > 0 || !!idleTask,
+      tasks,
+      idleTask,
+      message: lines.join('\n')
+    };
+  }
 }

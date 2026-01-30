@@ -256,6 +256,21 @@ program
     }
   });
 
+// === PULL COMMAND (for agent heartbeats) ===
+
+program
+  .command('pull <agentId>')
+  .description('Pull work queue for agent (use this in heartbeats)')
+  .option('--json', 'Output as JSON')
+  .action((agentId, opts) => {
+    const work = awm.getAgentWork(agentId);
+    if (opts.json) {
+      console.log(JSON.stringify(work, null, 2));
+    } else {
+      console.log(work.message);
+    }
+  });
+
 // === MONITORING ===
 
 program
