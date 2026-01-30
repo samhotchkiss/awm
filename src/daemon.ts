@@ -84,18 +84,22 @@ async function silentWake(agentId: string, message: string, config: DaemonConfig
   }
 
   try {
-    // Use sessions_send via Gateway WebSocket API
+    // Use sessions_send via Gateway /tools/invoke endpoint
     // The agent will receive this as a system message in their session
-    const res = await fetch(`${config.gatewayUrl}/api/sessions/send`, {
+    const res = await fetch(`${config.gatewayUrl}/tools/invoke`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${config.gatewayToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        agentId: clawdbotAgentId,
-        message: `[AWM Silent Wake]\n${message}`,
-        label: 'awm-wake'
+        tool: 'sessions_send',
+        args: {
+          agentId: clawdbotAgentId,
+          message: `[AWM Silent Wake]\n${message}`,
+          label: 'awm-wake',
+          timeoutSeconds: 0  // fire-and-forget
+        }
       })
     });
 
