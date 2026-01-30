@@ -514,12 +514,18 @@ export class AWM {
 
     if (idleTask) {
       if (tasks.length > 0) {
-        lines.push('---');
-        lines.push('Then continue with idle work:');
+        lines.push('');
+        lines.push('────────────────────────────────────────────────────────────');
+        lines.push('');
       }
-      lines.push(`🏠 IDLE: ${idleTask.name}`);
-      lines.push(`   → ${idleTask.instruction}`);
-      lines.push(`   Check in: \`awm checkin ${agentId} -m "what you did"\``);
+      lines.push('🏠 IDLE MODE: ' + idleTask.name);
+      lines.push('');
+      lines.push(idleTask.instruction);
+      lines.push('');
+      lines.push('When you complete idle work, check in:');
+      lines.push(`  ${agentId === 'frank' ? '/Users/sam/clawd/bin/awm' : 'awm'} checkin ${agentId} -m "what you did"`);
+      lines.push('');
+      lines.push('────────────────────────────────────────────────────────────');
     }
 
     if (tasks.length === 0 && !idleTask) {
