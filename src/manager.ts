@@ -499,25 +499,27 @@ export class AWM {
     const lines: string[] = [];
     
     if (tasks.length > 0) {
-      lines.push(`📋 YOU HAVE ${tasks.length} TASK(S) TO DO:`);
+      lines.push(`🚨 DO THIS NOW (${tasks.length} task${tasks.length > 1 ? 's' : ''}):`);
       lines.push('');
       for (let i = 0; i < tasks.length; i++) {
         const t = tasks[i];
         lines.push(`${i + 1}. **${t.name}** (${t.overdueMins}m overdue)`);
         lines.push(`   → ${t.instruction}`);
-        lines.push(`   When done: \`awm update ${t.id} -m "what you did"\``);
+        lines.push(`   Log completion: \`awm update ${t.id} -m "what you did"\``);
         lines.push('');
       }
+      lines.push('⚠️ DO NOT ASK PERMISSION. DO THE WORK. POST UPDATES TO SLACK.');
+      lines.push('');
     }
 
     if (idleTask) {
       if (tasks.length > 0) {
         lines.push('---');
-        lines.push('After completing tasks above, continue with:');
+        lines.push('Then continue with idle work:');
       }
-      lines.push(`🏠 IDLE WORK: ${idleTask.name}`);
+      lines.push(`🏠 IDLE: ${idleTask.name}`);
       lines.push(`   → ${idleTask.instruction}`);
-      lines.push(`   Check in periodically: \`awm checkin ${agentId} -m "what you did"\``);
+      lines.push(`   Check in: \`awm checkin ${agentId} -m "what you did"\``);
     }
 
     if (tasks.length === 0 && !idleTask) {
