@@ -439,7 +439,7 @@ export class AWM {
    * Returns prioritized tasks + idle work instructions.
    * Designed for agent heartbeats to pull their work queue.
    */
-  getAgentWork(agentId: string): {
+  getAgentWork(agentId: string, opts?: { log?: boolean }): {
     hasWork: boolean;
     tasks: Array<{ id: string; name: string; instruction: string; cadence?: string; overdueMins: number }>;
     idleTask?: { name: string; instruction: string };
@@ -447,6 +447,16 @@ export class AWM {
   } {
     const agent = this.storage.getAgent(agentId);
     const now = Date.now();
+
+    // Log pull if requested (temporary for debugging)
+    if (opts?.log) {
+      this.storage.addHistoryEntry({
+        taskId: 'pull',
+        agentId,
+        timestamp: now,
+        message: 'Agent pulled work queue'
+      });
+    }
 
     // Collect overdue recurring tasks, sorted by how overdue they are
     const overdueTasks: Array<{ task: Task; overdueMins: number }> = [];

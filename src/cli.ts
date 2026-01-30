@@ -262,8 +262,9 @@ program
   .command('pull <agentId>')
   .description('Pull work queue for agent (use this in heartbeats)')
   .option('--json', 'Output as JSON')
+  .option('--no-log', 'Disable logging the pull')
   .action((agentId, opts) => {
-    const work = awm.getAgentWork(agentId);
+    const work = awm.getAgentWork(agentId, { log: opts.log !== false });
     if (opts.json) {
       console.log(JSON.stringify(work, null, 2));
     } else {
